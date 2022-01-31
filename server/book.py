@@ -1,8 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
-)
-from werkzeug.exceptions import abort
-from server.auth import login_required
+    Blueprint, render_template, request)
 from server.db import get_db
 import requests
 from bs4 import BeautifulSoup
@@ -60,10 +57,12 @@ def search():
             for book in books:
                 # add or replace book to database from NDL
                 db.execute(
-                    'INSERT OR REPLACE INTO book (isbn, title, author, series, volume, publisher, permalink, edition)'
+                    'INSERT OR REPLACE INTO book (isbn, title, author, \
+                        series, volume, publisher, permalink, edition)'
                     ' VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-                    (book['isbn'], book['title'], book['author'], book['series'],
-                     book['volume'], book['publisher'], book['permalink'], book['edition'])
+                    (book['isbn'], book['title'], book['author'],
+                     book['series'], book['volume'], book['publisher'],
+                     book['permalink'], book['edition'])
                 )
                 db.commit()
 

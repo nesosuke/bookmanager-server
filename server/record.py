@@ -25,7 +25,6 @@ def index():
         users[record['user_id']] = db.execute(
             'SELECT username FROM user WHERE id = ?', (record['user_id'],)
         ).fetchone()
-    print(books)
     return render_template('record/index.html', records=records, books=books,
                            users=users)
 

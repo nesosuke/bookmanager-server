@@ -1,4 +1,6 @@
 # /api tests
+from datetime import datetime
+from time import time
 import pytest
 import json
 
@@ -9,90 +11,98 @@ def test_api_top(client):
     assert response.status_code == 200
 
 
-# fetch book information by isbn
+# get book information by isbn
 # endpoint: /api/book/<isbn>
 # method: GET
 # params: isbn
 # return: json
 
 
-@pytest.mark.parametrize(('isbn', 'response'), (
+@pytest.mark.parametrize(('isbn', 'message'), (
     # book  found
     ('9784873119328',
         (200,
          {'isbn': '9784873119328',
           'title': '入門Python 3',
           'author': 'Lubanovic, Bill',
-          'publisher': 'オライリー・ジャパン', })),
+          'publisher': 'オライリー・ジャパン',
+          'year': None,
+          'edition': '第2版',
+          'genre': None,
+          'series': '',
+          'volume': '',
+          'description': None,
+          'permalink': 'https://iss.ndl.go.jp/books/R100000074-I000721538-00',
+          'ndl_image_url': None})),
     # book not found
     ('9784873119329',
-     (404, {'message': 'Book not found.'}),
+     (404, None),
      )))
-def test_fetch_bookinfo_by_isbn(client, isbn, response):
+def test_get_bookinfo_by_isbn(client, isbn, message):
     response = client.get('/api/book/' + isbn)
-    assert response.status_code == response[0]
-    assert response.json == response[1]
+    assert response.status_code == message[0]
+    assert response.json == message[1]
 
 
-# fetch a record by record_id
+# get a record by record_id
 # endpoint: /api/record/<record_id>
 # method: GET
 # params: record_id
 # return: json
-@pytest.mark.parametrize(('record_id', 'response'), (
+@pytest.mark.parametrize(('record_id', 'message'), (
     # record found
     ('1',
-        (200, {'record_id': '1',
+        (200, {'record_id': 1,
                'isbn': '9784873119328',
                'title': '入門Python 3',
                'author': 'Lubanovic, Bill',
                'publisher': 'オライリー・ジャパン',
                'username': 'test',
                'status': 'read',
-               'rating': '5',
+               'rating': 5,
                'comment': 'test comment',
-               'record_at': '20222-01-01T00:00:00'})),
+               'record_at': '2022-01-01T00:00:00'})),
     # record not found
     ('2',
-     (404, {'message': 'Record not found.'}),
+     (404, None),
      ))
 )
-def test_fetch_a_record_by_record_id(client, record_id, response):
+def test_get_a_record_by_record_id(client, record_id, message):
     response = client.get('/api/record/' + record_id)
-    assert response.status_code == response[0]
-    assert response.json == response[1]
+    assert response.status_code == message[0]
+    assert response.json == message[1]
 
 
-# fetch all records of a user by username
+# get all records of a user by username
 # endpoint: /api/user/<username>/records
 # method: GET
 # params: user_id
 # return: json
-@pytest.mark.parametrize(('username', 'response'), (
+@pytest.mark.parametrize(('username', 'message'), (
     # user not found
     ('wrong_user',
-        (404, {'message': 'User not found.'}),
+        (404, None),
      ),
     # user found
     ('test',
-        (200, [{'record_id': '1',
-                'isbn': '9784873119328',
-                'title': '入門Python 3',
-                'author': 'Lubanovic, Bill',
-                'publisher': 'オライリー・ジャパン',
-                'status': 'read',
-                'rating': '5',
-                'comment': 'test comment',
-                'record_at': '20222-01-01T00:00:00'}])),
+        (200, json.dumps([{'record_id': 1,
+                           'isbn': '9784873119328',
+                           'title': '入門Python 3',
+                           'author': 'Lubanovic, Bill',
+                           'publisher': 'オライリー・ジャパン',
+                           'status': 'read',
+                           'rating': 5,
+                           'comment': 'test comment',
+                           'record_at': '2022-01-01T00:00:00'}]))),
     # user found, but no record
     ('other',
-        (200, []),
+        (200, None),
      ),
 ))
-def test_fetch_all_records_of_a_user_by_username(client, username, response):
+def test_get_all_records_of_a_user(client, username, message):
     response = client.get('/api/user/' + username + '/records')
-    assert response.status_code == response[0]
-    assert response.json == response[1]
+    assert response.status_code == message[0]
+    assert response.json == message[1]
 
 
 # post a record
@@ -103,7 +113,7 @@ def test_fetch_all_records_of_a_user_by_username(client, username, response):
 # return: response with record_id OR error message
 
 
-@pytest.mark.parametrize(('username', 'password', 'isbn', 'status', 'comment', 'response'), (
+@pytest.mark.parametrize(('username', 'password', 'isbn', 'status', 'comment', 'message'), (
     # invliad authentication -> return 401
     ('wrong_user', 'wrong_password', '9784873119328', 'read', 'test', (
         401, 'application/json', '{"result":"failed","message":"Unauthorized"}')),
@@ -117,7 +127,7 @@ def test_fetch_all_records_of_a_user_by_username(client, username, response):
     ('test', 'test', '9784873119328', 'read', 'test', (
         409, 'application/json', '{"result":"failed","message":"Conflict"}')),
 ))
-def test_api_post_a_record(client, username, password, isbn, status, comment, response):
+def test_api_post_a_record(client, username, password, isbn, status, comment, message):
     response = client.post(
         '/api/record/new',
         data=json.dumps({'username': username, 'password': password,
@@ -136,7 +146,7 @@ def test_api_post_a_record(client, username, password, isbn, status, comment, re
 # params: isbn,status,comment
 # return: response with record_id and updated record OR error message
 
-@pytest.mark.parametrize(('username', 'password', 'record_id', 'isbn', 'status', 'comment', 'response'), (
+@pytest.mark.parametrize(('username', 'password', 'record_id', 'isbn', 'status', 'comment', 'message'), (
     # invliad authentication -> return 401
     ('wrong_user', 'wrong_password', '1', '9784873119328', 'read', 'test', (
         401, 'application/json', '{"result":"failed","message":"Unauthorized"}')),
@@ -150,7 +160,7 @@ def test_api_post_a_record(client, username, password, isbn, status, comment, re
     ('test', 'test', '2', '9784873119328', 'read', 'test', (
         404, 'application/json', '{"result":"failed","message":"Not Found"}')),
 ))
-def test_api_update_a_record(client, username, password, record_id, isbn, status, comment, response):
+def test_api_update_a_record(client, username, password, record_id, isbn, status, comment, message):
     response = client.post(
         '/api/record/' + record_id + '/update',
         data=json.dumps({'username': username, 'password': password,

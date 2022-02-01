@@ -9,6 +9,6 @@ VALUES
 
 INSERT INTO record (user_id,book_id,status,comment,rating,record_at)
 VALUES
-(1,1,'read','test comment',5,'2022-01-01 00:00:00');
+(1,1,'read','test comment',5,'2022-01-01T00:00:00');
 
 

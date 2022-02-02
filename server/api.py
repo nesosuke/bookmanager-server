@@ -57,7 +57,7 @@ def get_recordinfo(record_id):
     response['author'] = book['author']
     response['publisher'] = book['publisher']
     del response['id'], response['user_id'], response['book_id']
-    return response
+    return jsonify(response)
 
 
 # /user/<username>/records, return records of a user

@@ -58,7 +58,7 @@ def get_recordinfo(record_id):
 
 
 # /user/<username>/records, return records of a user
-@bp.route('/user/<username>/records')  # FIXME
+@bp.route('/user/<username>/records')
 def get_all_records_of_a_user(username):
     db = get_db()
     user = db.execute(

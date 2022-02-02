@@ -1,9 +1,12 @@
 from flask import (
-    Flask, Blueprint, render_template, Response, abort, jsonify)
-from server.auth import login_required
+    Flask, Blueprint, abort, jsonify, request,)
 from server.db import get_db
+from werkzeug.security import check_password_hash
 
 bp = Blueprint('api', __name__, url_prefix='/api')
+
+status_list = ['read', 'unread', 'reading',
+               'will_read', 'wont_read', 'cancelled']
 
 # /api, return  response 200
 
@@ -91,4 +94,76 @@ def get_all_records_of_a_user(username):
         response[i]['record_at'] = record['record_at'].isoformat()
 
         del record['id'], record['user_id'], record['book_id']
+    return jsonify(response)
+
+
+# post a record
+# endpoint: /record/new
+# required parameters: username, password, isbn, status
+# optional parameters: rating, comment
+# return: record_id OR error
+@bp.route('/record/new', methods=('POST', 'GET'))
+def post_a_new_record():
+    if request.method == 'GET':
+        abort(405)
+
+    # get parameters from data
+    username = request.json['username']
+    password = request.json['password']
+    isbn = request.json['isbn']
+    status = request.json['status']
+    rating = request.json.get('rating', None)
+    comment = request.json.get('comment', None)
+
+    # validate parameters
+    if username == '' or password == '' or isbn == '' or \
+            status not in status_list:
+        abort(400)
+    db = get_db()
+    user = None
+    user = db.execute(
+        'SELECT id, password FROM user WHERE username = ?', (
+            username,)).fetchone()
+    if user is None:
+        abort(401)
+
+    if check_password_hash(user['password'], password) is False:
+        abort(401)
+
+    # validate isbn
+    book = db.execute(
+        'SELECT * FROM book WHERE isbn = ?', (isbn,)
+    ).fetchone()
+
+    # book not found
+    if book is None:
+        abort(404)
+
+    # check duplicate record
+    record = db.execute(
+        'SELECT * FROM record WHERE user_id = ? AND book_id = ?',
+        (user['id'], book['id'])).fetchone()
+
+    if record is not None:
+        abort(409)
+
+    # insert record
+    db.execute(
+        'INSERT INTO record (user_id, book_id, status, rating, comment) \
+            VALUES (?, ?, ?, ?, ?)',
+        (user['id'], book['id'], status, rating, comment))
+    db.commit()
+    result = db.execute(
+        'SELECT id, record_at FROM record WHERE (user_id,book_id)=(?,?)',
+        (user['id'], book['id'])).fetchone()
+    result = dict(result)
+    if result is None:
+        abort(500)
+
+    response = {'result': 'success',
+                'record': {
+                    'record_id': result['id'],
+                    'title': book['title'],
+                    'status': status}}
+
     return jsonify(response)

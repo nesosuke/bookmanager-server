@@ -119,27 +119,30 @@ def test_get_all_records_of_a_user(client, username, message):
 @pytest.mark.parametrize(('username', 'password', 'isbn', 'status', 'comment', 'message'), (
     # invliad authentication -> return 401
     ('wrong_user', 'wrong_password', '9784873119328', 'read', 'test', (
-        401, 'application/json', '{"result":"failed","message":"Unauthorized"}')),
+        401, {"result": "failed", "message": "Unauthorized"})),
     # valid authentication, valid input -> return 200, record_id,
     ('test', 'test', '9784873113937', 'read', 'test',  (
-        201, 'application/json', '{"result":"success","record_id":1}')),
+        200, {"result": "success", "record": {"record_id": 2, "title": "初めてのPython", "status": "read"}})),
     # valid authentication, invalid input -> return 400, error message
     ('test', 'test', '9784873119328', '', 'test', (
-        400, 'application/json', '{"result":"failed","message":"Bad Request"}')),
+        400, {"result": "failed", "message": "Bad Request"})),
     # valid authentication, valid input, but record already exists -> return 409, error message
     ('test', 'test', '9784873119328', 'read', 'test', (
-        409, 'application/json', '{"result":"failed","message":"Conflict"}')),
+        409, {"result": "failed", "message": "Conflict"})),
+    # valid authentication, valid input, but book not found -> return 404, error message
+    ('test', 'test', '9784873119329', 'read', 'test', (
+        404, {"result": "failed", "message": "book not found"})),
 ))
 def test_api_post_a_record(client, username, password, isbn, status, comment, message):
     response = client.post(
         '/api/record/new',
         data=json.dumps({'username': username, 'password': password,
                          'isbn': isbn, 'status': status, 'comment': comment}),
-        content_type='application/json',
-    )
-    assert response.status_code == response[0]
-    assert response.content_type == response[1]
-    assert response.data == response[2]
+        content_type='application/json')
+
+    assert response.status_code == message[0]
+    if response.status_code == 200:
+        assert response.json == message[1]
 
 
 # update a record

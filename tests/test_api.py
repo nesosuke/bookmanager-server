@@ -1,4 +1,5 @@
 # /api tests
+from csv import list_dialects
 from datetime import datetime
 from time import time
 import pytest
@@ -83,21 +84,23 @@ def test_get_a_record_by_record_id(client, record_id, message):
     ('wrong_user',
         (404, None),
      ),
-    # user found
-    ('test',
-        (200, json.dumps([{'record_id': 1,
-                           'isbn': '9784873119328',
-                           'title': '入門Python 3',
-                           'author': 'Lubanovic, Bill',
-                           'publisher': 'オライリー・ジャパン',
-                           'status': 'read',
-                           'rating': 5,
-                           'comment': 'test comment',
-                           'record_at': '2022-01-01T00:00:00'}]))),
     # user found, but no record
     ('other',
-        (200, None),
+        (200, []),
      ),
+    # user found
+    ('test',
+        (200, [{'record_id': 1,
+                'username': 'test',
+                'isbn': '9784873119328',
+                'title': '入門Python 3',
+                'author': 'Lubanovic, Bill',
+                'publisher': 'オライリー・ジャパン',
+                'status': 'read',
+                'rating': 5,
+                'comment': 'test comment',
+                           'record_at': '2022-01-01T00:00:00'}])),
+
 ))
 def test_get_all_records_of_a_user(client, username, message):
     response = client.get('/api/user/' + username + '/records')

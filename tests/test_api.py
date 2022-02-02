@@ -113,28 +113,28 @@ def test_get_all_records_of_a_user(client, username, message):
 # return: response with record_id OR error message
 
 
-@pytest.mark.parametrize(('username', 'password', 'isbn', 'status', 'comment', 'message'), (
+@pytest.mark.parametrize(('username', 'password', 'isbn', 'status', 'rating', 'comment', 'message'), (
     # invliad authentication -> return 401
-    ('wrong_user', 'wrong_password', '9784873119328', 'read', 'test', (
+    ('wrong_user', 'wrong_password', '9784873119328', 'read', 1, 'test', (
         401, {"result": "failed", "message": "Unauthorized"})),
     # valid authentication, valid input -> return 200, record_id,
-    ('test', 'test', '9784873113937', 'read', 'test',  (
+    ('test', 'test', '9784873113937', 'read', 1, 'test',  (
         200, {"result": "success", "record": {"record_id": 2, "title": "初めてのPython", "status": "read"}})),
     # valid authentication, invalid input -> return 400, error message
-    ('test', 'test', '9784873119328', '', 'test', (
+    ('test', 'test', '9784873119328', '', 1, 'test', (
         400, {"result": "failed", "message": "Bad Request"})),
     # valid authentication, valid input, but record already exists -> return 409, error message
-    ('test', 'test', '9784873119328', 'read', 'test', (
+    ('test', 'test', '9784873119328', 'read', 1, 'test', (
         409, {"result": "failed", "message": "Conflict"})),
     # valid authentication, valid input, but book not found -> return 404, error message
-    ('test', 'test', '9784873119329', 'read', 'test', (
+    ('test', 'test', '9784873119329', 'read', 1, 'test', (
         404, {"result": "failed", "message": "book not found"})),
 ))
-def test_api_post_a_record(client, username, password, isbn, status, comment, message):
+def test_api_post_a_record(client, username, password, isbn, status, rating, comment, message):
     response = client.post(
         '/api/record/new',
         data=json.dumps({'username': username, 'password': password,
-                         'isbn': isbn, 'status': status, 'comment': comment}),
+                         'isbn': isbn, 'status': status, 'rating': rating, 'comment': comment}),
         content_type='application/json')
 
     assert response.status_code == message[0]

@@ -1,7 +1,4 @@
 # /api tests
-from csv import list_dialects
-from datetime import datetime
-from time import time
 import pytest
 import json
 
@@ -152,27 +149,33 @@ def test_api_post_a_record(client, username, password, isbn, status, comment, me
 # params: isbn,status,comment
 # return: response with record_id and updated record OR error message
 
-@pytest.mark.parametrize(('username', 'password', 'record_id', 'isbn', 'status', 'comment', 'message'), (
+@pytest.mark.parametrize(('username', 'password', 'record_id', 'isbn', 'status', 'rating', 'comment', 'message'), (
     # invliad authentication -> return 401
-    ('wrong_user', 'wrong_password', '1', '9784873119328', 'read', 'test', (
-        401, 'application/json', '{"result":"failed","message":"Unauthorized"}')),
+    ('wrong_user', 'wrong_password', 1, '9784873119328', 'read', 1, 'test', (
+        401, {"result": "failed", "message": "Unauthorized"})),
     # valid authentication, valid input -> return 200, record_id and updated record
-    ('test', 'test', '1', '9784873119328', 'read', 'test',  (
-        200, 'application/json', '{"result":"success","record_id":1,"record":{"record_id":1,"username":"test","title":"test","author":"test","isbn":"9784873119328","status":"read","comment":"test","rating":0,"record_at":"2022-01-01T00:00:00"}}')),
+    ('test', 'test', 1, '9784873119328', 'read', 1, 'test',  (
+        200, {"result": "success",
+              "record":
+              {"record_id": 1,
+               "title": "入門Python 3",
+               "status": "read",
+               "comment": "test",
+               "rating": 1}})),
     # valid authentication, invalid input -> return 400, error message
-    ('test', 'test', '1', '9784873119328', '', 'test', (
-        400, 'application/json', '{"result":"failed","message":"Bad Request"}')),
+    ('test', 'test', 1, '9784873119328', '', 1, 'test', (
+        400, {"result": "failed", "message": "Bad Request"})),
     # valid authentication, valid input, but record not exists -> return 404, error message
-    ('test', 'test', '2', '9784873119328', 'read', 'test', (
-        404, 'application/json', '{"result":"failed","message":"Not Found"}')),
+    ('test', 'test', 2, '9784873119328', 'read', 1, 'test', (
+        404, {"result": "failed", "message": "Not Found"})),
 ))
-def test_api_update_a_record(client, username, password, record_id, isbn, status, comment, message):
+def test_api_update_a_record(client, username, password, record_id, isbn, status, rating, comment, message):
     response = client.post(
-        '/api/record/' + record_id + '/update',
+        '/api/record/' + str(record_id) + '/update',
         data=json.dumps({'username': username, 'password': password,
-                         'isbn': isbn, 'status': status, 'comment': comment}),
-        content_type='application/json',
-    )
-    assert response.status_code == response[0]
-    assert response.content_type == response[1]
-    assert response.data == response[2]
+                         'isbn': isbn, 'status': status, 'rating': rating, 'comment': comment}),
+        content_type='application/json')
+
+    assert response.status_code == message[0]
+    if response.status_code == 200:
+        assert response.json == message[1]

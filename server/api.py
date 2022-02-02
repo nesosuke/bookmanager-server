@@ -167,3 +167,79 @@ def post_a_new_record():
                     'status': status}}
 
     return jsonify(response)
+
+# update an existing record
+# endpoint: /record/<record_id>/update
+# required parameters: username, password, status,isbn
+# optional parameters: rating, comment
+# return: updateed record OR error
+
+
+@bp.route('/record/<record_id>/update', methods=('POST', 'GET'))
+def update_a_record(record_id):
+    if request.method == 'GET':
+        abort(405)
+
+    # get parameters from data
+    username = request.json['username']
+    password = request.json['password']
+    status = request.json['status']
+    rating = request.json.get('rating', None)
+    comment = request.json.get('comment', None)
+    isbn = request.json['isbn']
+
+    print(rating)
+    # validate parameters
+    if username == '' or password == '' or \
+            status not in status_list or isbn == '' or record_id == '':
+        abort(400)
+    db = get_db()
+    user = None
+    user = db.execute(
+        'SELECT id, password FROM user WHERE username = ?', (
+            username,)).fetchone()
+    if user is None:
+        abort(401)
+
+    if check_password_hash(user['password'], password) is False:
+        abort(401)
+
+    # validate isbn
+    book = db.execute(
+        'SELECT * FROM book WHERE isbn = ?', (isbn,)
+    ).fetchone()
+
+    # book not found
+    if book is None:
+        abort(404)
+
+    # check duplicate record
+    record = db.execute(
+        'SELECT * FROM record WHERE user_id = ? AND book_id = ? AND id = ?',
+        (user['id'], book['id'], record_id)).fetchone()
+
+    if record is None:
+        abort(404)
+
+    # update record
+    db.execute(
+        'UPDATE record SET status = ?, rating = ?, comment = ? \
+            WHERE id = ?',
+        (status, rating, comment, record_id))
+    db.commit()
+    result = db.execute(
+        'SELECT id, record_at FROM record WHERE (user_id,book_id)=(?,?)',
+        (user['id'], book['id'])).fetchone()
+    result = dict(result)
+    if result is None:
+        abort(500)
+
+    response = {'result': 'success',
+                'record': {
+                    'record_id': result['id'],
+                    'title': book['title'],
+                    'status': status,
+                    'rating': rating,
+                    'comment': comment}}
+
+    return jsonify(response)

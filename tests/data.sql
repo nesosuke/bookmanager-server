@@ -5,10 +5,9 @@ VALUES
 
 INSERT INTO book (title,author,isbn,publisher,year,edition,genre,series,volume,description,permalink,ndl_image_url)
 VALUES
-('入門Python 3','Lubanovic, Bill','9784873119328','オライリー・ジャパン','test year','test edition','test genre','test series','test volume','test description','test permalink','test ndl_image_url');
+('入門Python 3','Lubanovic, Bill','9784873119328','オライリー・ジャパン',Null,'第2版',Null,'','',Null,'https://iss.ndl.go.jp/books/R100000074-I000721538-00',Null),
+('初めてのPython','Lutz, Mark','9784873113937','オライリー・ジャパン',Null,'',Null,'','',Null,'https://iss.ndl.go.jp/books/R100000096-I006692207-00',Null);
 
 INSERT INTO record (user_id,book_id,status,comment,rating,record_at)
 VALUES
 (1,1,'read','test comment',5,'2022-01-01 00:00:00');
-
-

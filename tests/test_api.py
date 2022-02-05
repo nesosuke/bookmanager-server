@@ -12,7 +12,7 @@ def test_api_top(client):
 # get book information by isbn
 # endpoint: /api/book/<isbn>
 # method: GET
-# params: isbn
+# required params: isbn
 # return: json
 
 
@@ -45,7 +45,7 @@ def test_get_bookinfo_by_isbn(client, isbn, message):
 # get a record by record_id
 # endpoint: /api/record/<record_id>
 # method: GET
-# params: record_id
+# required params: record_id
 # return: json
 @pytest.mark.parametrize(('record_id', 'message'), (
     # record found
@@ -74,7 +74,7 @@ def test_get_a_record_by_record_id(client, record_id, message):
 # get all records of a user by username
 # endpoint: /api/user/<username>/records
 # method: GET
-# params: user_id
+# required params: user_id
 # return: json
 @pytest.mark.parametrize(('username', 'message'), (
     # user not found
@@ -109,7 +109,8 @@ def test_get_all_records_of_a_user(client, username, message):
 # endpoint: /api/record/new
 # required login
 # method: POST
-# params: isbn, status, comment
+# required params: username, isbn, status
+# optional params: rating, comment
 # return: response with record_id OR error message
 
 
@@ -146,7 +147,8 @@ def test_api_post_a_record(client, username, password, isbn, status, rating, com
 # endpoint: /api/record/<record_id>/update
 # required login
 # method: POST
-# params: isbn,status,comment
+# required params: username, password, isbn, status
+# optional params: rating, comment
 # return: response with record_id and updated record OR error message
 
 @pytest.mark.parametrize(('username', 'password', 'record_id', 'isbn', 'status', 'rating', 'comment', 'message'), (

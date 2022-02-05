@@ -83,8 +83,8 @@ def record(isbn):
         return render_template('record/record.html', book=book, record=record)
 
 
-@ bp.route('/detail/<record_id>', methods=['GET'])
-@ login_required
+@bp.route('/detail/<record_id>', methods=['GET'])
+@login_required
 def detail(record_id):
     db = get_db()
     record = db.execute(

@@ -29,7 +29,7 @@ def get_bookinfo(isbn) -> object:
 # Handle User
 
 @bp.route('/user/register', methods=['POST'])
-def register() -> object:
+def register_user() -> object:
     '''
     Register a new user
     '''
@@ -51,7 +51,7 @@ def register() -> object:
 
 
 @bp.route('/user/delete', methods=['POST'])
-def delete() -> object:
+def delete_user() -> object:
     '''
     Delete exist user
     '''

@@ -2,6 +2,7 @@ from .Db import get_db
 from bs4 import BeautifulSoup as bs
 import requests
 
+requests.packages.urllib3.disable_warnings()
 url_NDL = 'https://iss.ndl.go.jp/api/opensearch?mediatype=1'
 
 
@@ -125,4 +126,8 @@ def findone(isbn) -> dict:
              bookinfo['permalink'], bookinfo['edition']))
         db.commit()
 
-    return dict(bookinfo)
+        bookinfo = db.execute(
+            'SELECT * FROM book WHERE isbn = ?', (isbn,)).fetchone()
+    bookinfo = dict(bookinfo)
+    del bookinfo['id']
+    return bookinfo

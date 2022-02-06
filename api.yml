@@ -18,6 +18,7 @@ paths:
           required: true
           schema:
             type: string
+          example: "9784873119328"
       responses:
         200:
           description: ok
@@ -78,18 +79,22 @@ paths:
               properties:
                 username:
                   type: string
+                  example: "test"
                 password:
                   type: string
-                record_id:
-                  type: string
+                  example: "test"
                 isbn:
                   type: string
+                  example: "9784873119328"
                 status:
                   type: string
+                  example: "read"
                 rating:
-                  type: string
+                  type: integer
+                  example: 5
                 comment:
                   type: string
+                  example: "test comment"
 
       responses:
         200:
@@ -106,6 +111,8 @@ paths:
           description: not found
   /record/delete:
     post:
+      description: "ONLY FOT TEST"
+      deprecated: true
       tags:
         - record
       requestBody:
@@ -116,10 +123,13 @@ paths:
               properties:
                 username:
                   type: string
+                  example: "test"
                 password:
                   type: string
+                  example: "test"
                 record_id:
                   type: string
+                  example: 1
       responses:
         200:
           description: ok
@@ -141,11 +151,14 @@ paths:
               properties:
                 username:
                   type: string
+                  example: "test"
                 password:
                   type: string
+                  example: "test"
                 confirm:
                   type: string
-              
+                  example: "No"
+
       responses:
         200:
           description: ok
@@ -169,10 +182,13 @@ paths:
               properties:
                 username:
                   type: string
+                  example: "test"
                 password:
                   type: string
+                  example: "test"
                 confirm:
                   type: string
+                  example: "No"
       responses:
         200:
           description: ok

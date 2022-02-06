@@ -17,6 +17,25 @@ def findone(username) -> dict:
     return userdata
 
 
+def available(username: str) -> bool:
+    '''
+    check if username is preserved
+    table: user
+    query: username
+    return: boolean
+    '''
+
+    preserved_usernames = ['admin', 'guest', 'root', 'administrator']
+    if username in preserved_usernames:
+        return False
+
+    isexist = findone(username)
+    if isexist:
+        return False
+    else:
+        return True
+
+
 def validate_user(username, password) -> bool:
     '''
     validate user identity
@@ -51,8 +70,7 @@ def register(username, password) -> bool:
 
     db = get_db()
 
-    isexist = findone(username)
-    if isexist:
+    if available(username) is False:
         return False
     else:
         password = generate_password_hash(password)

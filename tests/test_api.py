@@ -11,13 +11,6 @@ def test_api_top(client):
     assert response.status_code == 200
 
 
-# get book information by isbn
-# endpoint: /api/book/<isbn>
-# method: GET
-# required params: isbn
-# return: json
-
-
 @pytest.mark.parametrize(('isbn', 'message'), (
     # book  found
     ('9784873119328',
@@ -39,16 +32,19 @@ def test_api_top(client):
      (404, None),
      )))
 def test_get_bookinfo_by_isbn(client, isbn, message):
+    '''
+    get book information by isbn
+    endpoint: /api/book/<isbn>
+    method: GET
+    required params: isbn
+    return: json
+    '''
+
     response = client.get('/api/book/' + isbn)
     assert response.status_code == message[0]
     assert response.json == message[1]
 
 
-# get a record by record_id
-# endpoint: /api/record/<record_id>
-# method: GET
-# required params: record_id
-# return: json
 @pytest.mark.parametrize(('record_id', 'message'), (
     # record found
     ('1',
@@ -68,17 +64,20 @@ def test_get_bookinfo_by_isbn(client, isbn, message):
      ))
 )
 def test_get_a_record_by_record_id(client, record_id, message):
+    '''
+    get a record by record_id
+    endpoint: /api/record/<record_id>
+    method: GET
+    required params: record_id
+    return: json
+    '''
+
     response = client.get('/api/record/' + record_id)
     assert response.status_code == message[0]
     if response.status_code == 200:
         assert response.json == message[1]
 
 
-# get all records of a user by username
-# endpoint: /api/user/<username>/records
-# method: GET
-# required params: user_id
-# return: json
 @pytest.mark.parametrize(('username', 'message'), (
     # user not found
     ('wrong_user',
@@ -103,17 +102,17 @@ def test_get_a_record_by_record_id(client, record_id, message):
 
 ))
 def test_get_all_records_of_a_user(client, username, message):
+    '''
+     get all records of a user by username
+     endpoint: /api/user/<username>/records
+     method: GET
+     required params: user_id
+     return: json
+    '''
+
     response = client.get('/api/user/' + username + '/records')
     assert response.status_code == message[0]
     assert response.json == message[1]
-
-
-# upsert a record
-# endpoint: /api/record/update
-# method: POST
-# required params: username, isbn, status
-# optional params: rating, comment
-# return: response with record_id OR error message
 
 
 @pytest.mark.parametrize(('username', 'password', 'isbn', 'status',
@@ -144,6 +143,15 @@ def test_get_all_records_of_a_user(client, username, message):
 ))
 def test_api_post_a_record(client, username, password, isbn,
                            status, rating, comment, message):
+    '''
+    upsert a record
+    endpoint: /api/record/update
+    method: POST
+    required params: username, isbn, status
+    optional params: rating, comment
+    return: response with record_id OR error message
+    '''
+
     response = client.post(
         '/api/record/update',
         data=json.dumps({'username': username,

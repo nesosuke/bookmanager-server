@@ -29,8 +29,8 @@ CREATE TABLE record (
   user_id INTEGER NOT NULL,
   book_id INTEGER NOT NULL,
   status TEXT NOT NULL,
-  comment TEXT NOT NULL,
-  rating INTEGER NOT NULL,
+  comment TEXT,
+  rating INTEGER ,
   record_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES user (id),
   FOREIGN KEY (book_id) REFERENCES book (id)

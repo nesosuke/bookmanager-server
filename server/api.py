@@ -21,6 +21,8 @@ def get_bookinfo(isbn) -> object:
     book = Book.findone(isbn)
     if book is None:
         abort(404)
+
+    del book['id']
     return jsonify(book)
 
 
@@ -80,6 +82,8 @@ def getone_record(record_id) -> object:
     record = Record.findone(record_id)
     if record is None:
         abort(404)
+
+    del record['id'], record['user_id'], record['book_id']
     return jsonify(record)
 
 
@@ -122,21 +126,26 @@ def upsert_record() -> object:
     if User.validate_user(username, password) is False:
         abort(401)
 
-    if Book.findone(isbn) is None:
+    user = User.findone(username=username)
+    book = Book.findone(isbn=isbn)
+    if user is None or book is None:
         abort(404)
 
-    user_id = User.findone(username)['id']
-    book_id = Book.findone(isbn)['id']
-
-    record = Record.upsert(user_id, book_id, status, rating, comment)
-
-    if record is None:  # invalid status
+    user_id = user['id']
+    book_id = book['id']
+    record = Record.upsert(user_id=user_id, book_id=book_id,
+                           status=status, rating=rating, comment=comment)
+    if record is None:
         abort(400)
 
+    result = {}
     result = {'record_id': record['id'],
               'username': username,
               'isbn': isbn,
+              'title': book['title'],
+              'author': book['author'],
               'status': status,
+              'publisher': book['publisher'],
               'rating': rating,
               'comment': comment,
               'record_at': record['record_at']}

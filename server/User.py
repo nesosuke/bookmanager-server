@@ -2,7 +2,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from .Db import get_db
 
 
-def findone(username) -> dict:
+def findone(username=None, id=None) -> dict:
     '''
     get user from DB:user by username
     table: user
@@ -10,8 +10,12 @@ def findone(username) -> dict:
     return: dict
 '''
     db = get_db()
-    userdata = db.execute(
-        'SELECT * FROM user WHERE username = ?', (username,)).fetchone()
+    if username is not None:
+        userdata = db.execute(
+            'SELECT * FROM user WHERE username = ? ', (username,)).fetchone()
+    if id is not None:
+        userdata = db.execute(
+            'SELECT * FROM user WHERE id = ? ', (id,)).fetchone()
     if userdata is None:
         return None
     return userdata

@@ -101,7 +101,7 @@ def search_from_NDL(keyword, startindex=0) -> list:
     return books
 
 
-def findone(isbn) -> dict:
+def findone(isbn=None, id=None) -> dict:
     '''get bookinfo from DB:book by isbn
     table: book
     search query: isbn
@@ -109,8 +109,13 @@ def findone(isbn) -> dict:
     '''
     db = get_db()
 
-    bookinfo = db.execute(
-        'SELECT * FROM book WHERE isbn = ?', (isbn,)).fetchone()
+    if isbn is not None:
+        bookinfo = db.execute(
+            'SELECT * FROM book WHERE isbn = ?', (isbn,)).fetchone()
+    if id is not None:
+        bookinfo = db.execute(
+            'SELECT * FROM book WHERE id = ?', (id,)).fetchone()
+
     if bookinfo is None:
         # fetch from NDL API and insert to DB
         bookinfo = fetch_from_NDL(isbn)
@@ -129,5 +134,4 @@ def findone(isbn) -> dict:
         bookinfo = db.execute(
             'SELECT * FROM book WHERE isbn = ?', (isbn,)).fetchone()
     bookinfo = dict(bookinfo)
-    del bookinfo['id']
     return bookinfo

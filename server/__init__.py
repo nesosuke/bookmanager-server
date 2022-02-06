@@ -1,5 +1,6 @@
 import os
 from flask import Flask
+from flask_cors import CORS
 
 
 def create_app(test_config=None):
@@ -9,6 +10,7 @@ def create_app(test_config=None):
         SECRET_KEY=os.urandom(24),
         DATABASE=os.path.join(app.instance_path, 'bookmeter.sqlite'),
     )
+    CORS(app)
     if test_config is None:
         # Not testing
         app.config.from_pyfile('config.py', silent=True)

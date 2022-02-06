@@ -24,9 +24,6 @@ def get_bookinfo(isbn) -> object:
     return jsonify(book)
 
 
-# Handle User
-
-
 @bp.route('/user/<username>/records')
 def getall_records(username) -> object:
     '''
@@ -40,6 +37,51 @@ def getall_records(username) -> object:
     return jsonify(records)
 
 
+# Handle User
+
+@bp.route('/user/register', methods=['POST'])
+def register() -> object:
+    '''
+    Register a new user
+    '''
+    data = dict(request.json)
+    try:
+        username = data['username']
+        password = data['password']
+        confirm = data['confirm']
+    except KeyError:
+        abort(400)
+    if confirm != 'Yes':
+        abort(400)
+
+    result = User.register(username, password)
+    if result is False:
+        abort(409)
+    else:
+        return jsonify({'message': 'Register Successfully'})
+
+
+@bp.route('/user/delete', methods=['POST'])
+def delete() -> object:
+    '''
+    Delete exist user
+    '''
+
+    data = dict(request.json)
+    try:
+        username = data['username']
+        password = data['password']
+        confirm = data['confirm']
+    except KeyError:
+        abort(400)
+
+    if confirm != 'Yes':
+        abort(400)
+
+    if User.delete(username, password) is False:
+        abort(400)
+    else:
+        return jsonify({'message': 'Delete Successfully'})
 # Handle Record
 
 
@@ -106,6 +148,9 @@ def delete_record() -> object:
 
     if User.validate_user(username, password) is False:
         abort(401)
+
+    if Record.findone(record_id) is None:
+        abort(404)
 
     record = Record.delete(record_id)
     return jsonify(record)

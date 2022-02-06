@@ -10,15 +10,14 @@ def findone(username=None, id=None) -> dict:
     return: dict
 '''
     db = get_db()
-    if username is not None:
-        userdata = db.execute(
-            'SELECT * FROM user WHERE username = ? ', (username,)).fetchone()
-    if id is not None:
-        userdata = db.execute(
-            'SELECT * FROM user WHERE id = ? ', (id,)).fetchone()
-    if userdata is None:
+
+    user = db.execute(
+        'SELECT * FROM user WHERE username = ? or id= ?',
+        (username, id)).fetchone()
+    if user is None:
         return None
-    return userdata
+    else:
+        return user
 
 
 def available(username: str) -> bool:
@@ -74,8 +73,10 @@ def register(username, password) -> bool:
 
     db = get_db()
 
-    if available(username) is False:
+    # check if username is already used
+    if findone(username) is not None or available(username) is False:
         return False
+
     else:
         password = generate_password_hash(password)
         db.execute(

@@ -1,4 +1,4 @@
-from .Db import get_db as db
+from .Db import get_db
 
 
 def find_id(user_id, book_id) -> int:
@@ -7,6 +7,9 @@ def find_id(user_id, book_id) -> int:
     table: record
     return: record_id or None
     '''
+
+    db = get_db()
+
     record_id = db.execute(
         'SELECT record_id FROM record WHERE user_id = ? AND book_id = ?',
         (user_id, book_id)).fetchone()
@@ -21,7 +24,11 @@ def findone(record_id) -> dict:
     get record from DB:record by record_id
     table: record
     return: dict
+import Db.get_db
     '''
+
+    db = get_db()
+
     record = db.execute(
         'SELECT * FROM record WHERE record_id = ?', (record_id,)).fetchone()
     if record is None:
@@ -38,6 +45,9 @@ def findall(user_id) -> list:
               and add bookinfo to each record
     return: list of dict, sorted by record_at DESC
 '''
+
+    db = get_db()
+
     records_raw = db.execute(
         'SELECT * FROM record WHERE user_id = ? ORDER BY record_at DESC',
         (user_id,)).fetchall()  # type: list[dict]
@@ -45,11 +55,12 @@ def findall(user_id) -> list:
     if records_raw is not None:
         records = [{} for i in range(len(records_raw))]
         for i, rec_raw in enumerate(records_raw):
-            records[i]['record_id'] = rec_raw['record_id']
-            records[i]['isbn'] = rec_raw['isbn']
-            records[i]['title'] = rec_raw['title']
-            records[i]['author'] = rec_raw['author']
-            records[i]['publisher'] = rec_raw['publisher']
+            records[i]['record_id'] = rec_raw['id']
+            records[i]['book_id'] = rec_raw['book_id']
+
+            # records[i]['title'] = rec_raw['title']
+            # records[i]['author'] = rec_raw['author']
+            # records[i]['publisher'] = rec_raw['publisher']
             records[i]['status'] = rec_raw['status']
             records[i]['rating'] = rec_raw['rating']
             records[i]['comment'] = rec_raw['comment']
@@ -67,6 +78,9 @@ def upsert(
     update query: status, rating, comment
     return: updated record
     '''
+
+    db = get_db()
+
     record_id = find_id(user_id, book_id)
 
     # If record exist, update record
@@ -93,6 +107,9 @@ def delete(record_id):
     delete record from DB:record
     table: record
     '''
+
+    db = get_db()
+
     response = db.execute(
         'DELETE FROM record WHERE record_id = ?', (record_id,))
     db.commit()

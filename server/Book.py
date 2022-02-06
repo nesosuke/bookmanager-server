@@ -1,4 +1,4 @@
-from .Db import get_db as db
+from .Db import get_db
 from bs4 import BeautifulSoup as bs
 import requests
 
@@ -9,9 +9,10 @@ def isisbn(isbn) -> bool:
     '''
     check ISBN format
     '''
+    isbn = str(isbn)
     if isbn.isdigit() is False:
         return False
-    if len(isbn) != 13 or len(isbn) != 10:
+    if len(isbn) != 13 and len(isbn) != 10:
         return False
 
     if len(isbn) == 13:
@@ -56,7 +57,7 @@ def fetch_from_NDL(isbn) -> dict:
 
     url = url_NDL + '&isbn=' + str(isbn)
     res = requests.get(url, verify=False)
-    soup = bs(res.content, 'lxml').channel.find_all('item')
+    soup = bs(res.content, 'lxml').channel.find('item')
     if len(soup) == 0:
         return None
 
@@ -79,10 +80,11 @@ def search_from_NDL(keyword, startindex=0) -> list:
     return: list, length is 10
     '''
 
-    url = url_NDL + '&title' + \
-        str(keyword)+' & cnt = 10' + ' & idx ='+str(startindex*10+1)
+    url = url_NDL + '&title=' + \
+        str(keyword)+'&cnt=10' + '&idx='+str(startindex*10+1)
     res = requests.get(url)
-    reslist = bs(res.content, 'lxml').channel.find_all('item')
+    reslist = bs(res.content, 'lxml',
+                 from_encoding='utf-8').channel.find_all('item')
     books = []
     for res in reslist:
         books.append({
@@ -104,6 +106,8 @@ def findone(isbn) -> dict:
     search query: isbn
     return: dict
     '''
+    db = get_db()
+
     bookinfo = db.execute(
         'SELECT * FROM book WHERE isbn = ?', (isbn,)).fetchone()
     if bookinfo is None:
@@ -121,4 +125,4 @@ def findone(isbn) -> dict:
              bookinfo['permalink'], bookinfo['edition']))
         db.commit()
 
-    return bookinfo
+    return dict(bookinfo)

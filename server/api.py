@@ -24,19 +24,6 @@ def get_bookinfo(isbn) -> object:
     return jsonify(book)
 
 
-@bp.route('/user/<username>/records')
-def getall_records(username) -> object:
-    '''
-    Show all records of a user
-    '''
-    user = User.findone(username)
-    if user is None:
-        abort(404)
-    user_id = user['id']
-    records = Record.findall(user_id)
-    return jsonify(records)
-
-
 # Handle User
 
 @bp.route('/user/register', methods=['POST'])
@@ -96,18 +83,31 @@ def getone_record(record_id) -> object:
     return jsonify(record)
 
 
+@bp.route('/user/<username>/records')
+def getall_records(username) -> object:
+    '''
+    Show all records of a user
+    '''
+    user = User.findone(username)
+    if user is None:
+        abort(404)
+    user_id = user['id']
+    records = Record.findall(user_id)
+    return jsonify(records)
+
+
 @bp.route('/record/update', methods=['POST'])
 def upsert_record() -> object:
     '''
     Upsert a record
     Required parameters: username, password, isbn, status
-    Optional parameters: record_id, rating, comment
+    Optional parameters: rating, comment
     Method: POST
     Data Format: JSON
     Return: upserted record
     '''
-
     data = dict(request.json)
+
     try:
         username = data['username']
         password = data['password']
@@ -116,7 +116,6 @@ def upsert_record() -> object:
     except KeyError:
         abort(400)
 
-    record_id = data['record_id'] if 'record_id' in data else None
     rating = data['rating'] if 'rating' in data else None
     comment = data['comment'] if 'comment' in data else None
 
@@ -126,8 +125,23 @@ def upsert_record() -> object:
     if Book.findone(isbn) is None:
         abort(404)
 
-    record = Record.upsert(username, isbn, status, record_id, rating, comment)
-    return jsonify(record)
+    user_id = User.findone(username)['id']
+    book_id = Book.findone(isbn)['id']
+
+    record = Record.upsert(user_id, book_id, status, rating, comment)
+
+    if record is None:  # invalid status
+        abort(400)
+
+    result = {'record_id': record['id'],
+              'username': username,
+              'isbn': isbn,
+              'status': status,
+              'rating': rating,
+              'comment': comment,
+              'record_at': record['record_at']}
+
+    return jsonify(result)
 
 
 @bp.route('/record/delete', methods=['POST'])

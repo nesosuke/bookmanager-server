@@ -1,5 +1,9 @@
 from .Db import get_db
 
+valid_status = ['read', 'unread', 'reading',
+                'will_read', 'wont_read', 'cancelled']
+valid_rating = [1, 2, 3, 4, 5]
+
 
 def find_id(user_id, book_id) -> int:
     '''
@@ -11,12 +15,12 @@ def find_id(user_id, book_id) -> int:
     db = get_db()
 
     record_id = db.execute(
-        'SELECT record_id FROM record WHERE user_id = ? AND book_id = ?',
+        'SELECT id FROM record WHERE user_id = ? AND book_id = ?',
         (user_id, book_id)).fetchone()
 
     if record_id is None:
         return None
-    return record_id['record_id']
+    return record_id['id']
 
 
 def findone(record_id) -> dict:
@@ -24,13 +28,12 @@ def findone(record_id) -> dict:
     get record from DB:record by record_id
     table: record
     return: dict
-import Db.get_db
     '''
 
     db = get_db()
 
     record = db.execute(
-        'SELECT * FROM record WHERE record_id = ?', (record_id,)).fetchone()
+        'SELECT * FROM record WHERE id = ?', (record_id,)).fetchone()
     if record is None:
         return None
     return record
@@ -69,7 +72,7 @@ def findall(user_id) -> list:
 
 
 def upsert(
-    user_id, book_id, status, record_id=None, rating=None, comment=None
+    user_id, book_id, status, rating=None, comment=None
 ) -> dict:
     '''
     UPSERT record to DB:record
@@ -83,14 +86,19 @@ def upsert(
 
     record_id = find_id(user_id, book_id)
 
+    # validate status and rating
+    if status not in valid_status or rating not in valid_rating:
+        return None
+
     # If record exist, update record
     if record_id is not None:
         db.execute(
-            'UPDATE record SET status = ?, rating = ?, comment = ? \
-                WHERE record_id = ?',
+            'UPDATE record SET (status, rating, comment) \
+                = (?, ?, ?) WHERE id = ?',
             (status, rating, comment, record_id))
         db.commit()
-        return findone(record_id)
+        record = findone(record_id)
+        return dict(record)
 
     # If record not exist, insert record
     else:
@@ -99,10 +107,12 @@ def upsert(
                 VALUES (?, ?, ?, ?, ?)',
             (user_id, book_id, status, rating, comment))
         db.commit()
-        return findone(db.lastrowid)
+        record_id = find_id(user_id, book_id)
+        record = findone(record_id)
+        return dict(record)
 
 
-def delete(record_id):
+def delete(record_id) -> bool:
     '''
     delete record from DB:record
     table: record
@@ -110,7 +120,7 @@ def delete(record_id):
 
     db = get_db()
 
-    response = db.execute(
-        'DELETE FROM record WHERE record_id = ?', (record_id,))
+    db.execute(
+        'DELETE FROM record WHERE id = ?', (record_id,))
     db.commit()
-    return response
+    return True

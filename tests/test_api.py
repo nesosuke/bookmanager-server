@@ -157,3 +157,7 @@ def test_api_post_a_record(client, username, password, isbn,
     assert response.status_code == message[0]
     if response.status_code == 200:
         assert response.json == message[1]
+
+# TODO: test delete a record
+# TODO: test register a user
+# TODO: test delete a user

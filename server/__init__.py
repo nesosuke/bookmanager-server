@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template
+from flask import Flask
 
 
 def create_app(test_config=None):
@@ -20,26 +20,8 @@ def create_app(test_config=None):
     except OSError:
         pass  # already exists
 
-    from . import db
-    db.init_app(app)
-
-    from . import auth
-    app.register_blueprint(auth.bp)
-
-    from . import record
-    app.register_blueprint(record.bp)
-    # app.add_url_rule('/', endpoint='index')
-
-    from . import book
-    app.register_blueprint(book.bp)
-
-    @app.route('/')
-    def toppage():
-        return render_template('index.html')
-
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
+    from . import Db
+    Db.init_app(app)
 
     from . import api
     app.register_blueprint(api.bp)

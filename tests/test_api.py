@@ -166,6 +166,92 @@ def test_api_post_a_record(client, username, password, isbn,
     if response.status_code == 200:
         assert response.json == message[1]
 
-# TODO: test delete a record
-# TODO: test register a user
-# TODO: test delete a user
+
+@pytest.mark.parametrize(('username', 'password', 'record_id', 'message'), (
+    # invliad authentication -> return 401
+    ('wrong_user', 'wrong_password', '1', (
+        401, {'message': 'Unauthorized'})),
+    # valid authentication, valid record_id -> return 200
+    ('test', 'test', '1', (
+        200, {'message': 'OK'})),
+    # valid authentication, invalid record_id -> return 404
+    ('test', 'test', '2', (
+        404, {'message': 'Not Found'})),
+))
+def test_api_delete_a_record(client, username, password, record_id, message):
+    '''
+    delete a record
+    endpoint: /api/record/delete
+    method: POST
+    required params: username, password, record_id
+    return: response with message
+    '''
+
+    response = client.post(
+        '/api/record/delete',
+        data=json.dumps({'username': username,
+                         'password': password,
+                         'record_id': record_id}),
+        content_type='application/json')
+
+    assert response.status_code == message[0]
+
+
+@pytest.mark.parametrize(('username', 'password', 'confirm', 'message'), (
+    # not confirmed policy -> return 400
+    ('test2', 'test', 'No', (
+        400, {'message': 'Bad Request'})),
+    # confirmed policy -> return 200
+    ('test2', 'test', 'Yes', (
+        200, {'message': 'OK'})),
+    # username already used -> return 409
+    ('test', 'test', 'Yes', (
+        409, {'message': 'Conflict'})),
+))
+def test_api_register(client, username, password, confirm, message):
+    '''
+    register a user
+    endpoint: /api/user/register
+    method: POST
+    required params: username, password, confirm
+    return: response with message
+    '''
+
+    response = client.post(
+        '/api/user/register',
+        data=json.dumps({'username': username,
+                         'password': password,
+                         'confirm': confirm}),
+        content_type='application/json')
+
+    assert response.status_code == message[0]
+
+
+@pytest.mark.parametrize(('username', 'password', 'confirm', 'message'), (
+    # not confirmed deletion -> return 400
+    ('test', 'test', 'No', (
+        400, {'message': 'Bad Request'})),
+    # confirmed deletion -> return 200
+    ('test', 'test', 'Yes', (
+        200, {'message': 'OK'})),
+    # invalid authentication -> return 400
+    ('wrong_user', 'wrong_password', 'Yes', (
+        400, {'message': 'Bad Request'})),
+))
+def test_api_delete_user(client, username, password, confirm, message):
+    '''
+    delete a user
+    endpoint: /api/user/delete
+    method: POST
+    required params: username, password, confirm
+    return: response with message
+    '''
+
+    response = client.post(
+        '/api/user/delete',
+        data=json.dumps({'username': username,
+                         'password': password,
+                         'confirm': confirm}),
+        content_type='application/json')
+
+    assert response.status_code == message[0]

@@ -3,7 +3,7 @@ import tempfile
 
 import pytest
 from server.__init__ import create_app
-from server.db import get_db, init_db
+from server.Db import get_db, init_db
 
 with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
     _data_sql = f.read().decode('utf8')

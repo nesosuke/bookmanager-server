@@ -1,0 +1,200 @@
+openapi: "3.0.0"
+
+info:
+  title: "bookmeter-server"
+  version: 0.0.1
+
+servers:
+  - url: "http://localhost:5000/api"
+
+paths:
+  /book/{isbn}:
+    get:
+      tags:
+        - book
+      parameters:
+        - name: isbn
+          in: path
+          required: true
+          schema:
+            type: string
+          example: "9784873119328"
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+
+        404:
+          description: not found
+  /user/{username}/records:
+    get:
+      tags:
+        - record
+      parameters:
+        - name: username
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: not found
+  /record/{record_id}:
+    get:
+      tags:
+        - record
+      parameters:
+        - name: record_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+        404:
+          description: not found
+  /record/update:
+    post:
+      tags:
+        - record
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "test"
+                password:
+                  type: string
+                  example: "test"
+                isbn:
+                  type: string
+                  example: "9784873119328"
+                status:
+                  type: string
+                  example: "read"
+                rating:
+                  type: integer
+                  example: 5
+                comment:
+                  type: string
+                  example: "test comment"
+
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+        400:
+          description: bad request
+        401:
+          description: unauthorized
+        404:
+          description: not found
+  /record/delete:
+    post:
+      description: "ONLY FOT TEST"
+      deprecated: true
+      tags:
+        - record
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "test"
+                password:
+                  type: string
+                  example: "test"
+                record_id:
+                  type: string
+                  example: 1
+      responses:
+        200:
+          description: ok
+        400:
+          description: bad request
+        401:
+          description: unauthorized
+        404:
+          description: not found
+  /user/register:
+    post:
+      tags:
+        - user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "test"
+                password:
+                  type: string
+                  example: "test"
+                confirm:
+                  type: string
+                  example: "No"
+
+      responses:
+        200:
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+        400:
+          description: bad request
+        409:
+          description: conflict
+  /user/delete:
+    post:
+      tags:
+        - user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "test"
+                password:
+                  type: string
+                  example: "test"
+                confirm:
+                  type: string
+                  example: "No"
+      responses:
+        200:
+          description: ok
+        400:
+          description: bad request
+        401:
+          description: unauthorized
+        404:
+          description: not found

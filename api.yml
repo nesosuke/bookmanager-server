@@ -5,9 +5,19 @@ info:
   version: 0.0.1
 
 servers:
-  - url: "http://localhost:5000/api"
+  - url: "http://localhost:8000/api"
 
 paths:
+  /:
+    get:
+      description: top page
+      responses:
+        200:
+          description: top page
+          content:
+            text/html:
+              schema:
+                type: string
   /book/{isbn}:
     get:
       tags:

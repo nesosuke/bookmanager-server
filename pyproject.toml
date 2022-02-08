@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bookmeter-server"
-version = "0.1.0"
+version = "0.0.1"
 description = ""
 authors = ["nesosuke <neso@neso.tech>"]
 
@@ -11,9 +11,12 @@ Flask-Cors = "^3.0.10"
 requests = "^2.27.1"
 bs4 = "^0.0.1"
 lxml = "^4.7.1"
+gunicorn = "^20.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.0.0"
+autopep8 = "^1.6.0"
+flake8 = "^4.0.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

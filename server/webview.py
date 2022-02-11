@@ -1,0 +1,51 @@
+from flask import Blueprint, Flash, render_template
+
+from server import book, record, user
+
+bp = Blueprint('web', __name__, url_prefix='/')
+
+
+class User:
+    def __init__(self, username, password):
+        self.isvalid = user.validate_user(username, password)
+
+        if self.isvalid:
+            self.id = user.findone(username)
+            self.username = username
+        else:
+            self.id = None
+            self.username = None
+
+
+class Book:
+    def __init__(self, isbn):
+        self.isbn = isbn
+        self.info = book.findone(isbn)
+
+        self.id = self.info['id']
+        self.title = self.info['title']
+        self.author = self.info['author']
+        self.publisher = self.info['publisher']
+        self.series = self.info['series']
+        self.volume = self.info['volume']
+        self.edition = self.info['edition']
+        self.perm = self.info['permalink']
+
+
+class Record:
+    def __init__(self, username, isbn):
+        self.username = username
+        self.isbn = isbn
+
+        self.id = record.find_id(User.id, Book.id)
+        self.info = record.findone(self.id)
+
+        self.status = self.info['status']
+        self.rating = self.info['rating']
+        self.comment = self.info['comment']
+        self.record_at = self.info['record_at']
+
+
+@bp.route('/')
+def index():
+    return render_template('index.html')

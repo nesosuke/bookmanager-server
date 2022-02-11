@@ -1,4 +1,4 @@
-from flask import Blueprint, Flash, render_template
+from flask import Blueprint, Flask, render_template
 
 from server import book, record, user
 
@@ -11,10 +11,10 @@ class User:
 
         if self.isvalid:
             self.id = user.findone(username)
-            self.username = username
+            self.name = username
         else:
             self.id = None
-            self.username = None
+            self.name = None
 
 
 class Book:

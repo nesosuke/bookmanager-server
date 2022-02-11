@@ -1,6 +1,6 @@
-from server import User
-from . import Book
-from .Db import get_db
+from . import user
+from . import book
+from .db import get_db
 
 
 def validate_status(status) -> bool:
@@ -41,13 +41,13 @@ def getid(username, isbn) -> int:
 
     db = get_db()
 
-    user = User.findone(username=username)
+    user = user.findone(username=username)
     if user is None:
         return None
     else:
         user_id = user['id']
 
-    book = Book.findone(isbn=isbn)
+    book = book.findone(isbn=isbn)
     if book is None:
         return None
     else:
@@ -79,10 +79,10 @@ def findone(record_id: int) -> dict:
 
     record['record_id'] = record['id']
 
-    username = User.findone(id=record['user_id'])['username']
-    isbn = Book.findone(id=record['book_id'])['isbn']
+    username = user.findone(id=record['user_id'])['username']
+    isbn = book.findone(id=record['book_id'])['isbn']
 
-    bookinfo = Book.findone(isbn)
+    bookinfo = book.findone(isbn)
 
     record['isbn'] = isbn
     record['username'] = username
@@ -111,7 +111,7 @@ def findall(user_id) -> list:
         (user_id,)).fetchall()
     records_raw = list(records_raw)
 
-    username = User.findone(id=user_id)['username']
+    username = user.findone(id=user_id)['username']
 
     if records_raw is not None:
         records = [{} for i in range(len(records_raw))]
@@ -122,7 +122,7 @@ def findall(user_id) -> list:
             records[i]['comment'] = rec_raw['comment']
             records[i]['record_at'] = rec_raw['record_at'].isoformat()
 
-            bookinfo = Book.findone(id=rec_raw['book_id'])
+            bookinfo = book.findone(id=rec_raw['book_id'])
             records[i]['isbn'] = bookinfo['isbn']
             records[i]['title'] = bookinfo['title']
             records[i]['author'] = bookinfo['author']

@@ -1,6 +1,6 @@
 from flask import Blueprint, abort, jsonify, request
 
-from . import Book, Record, User
+from . import book, record, user
 
 bp = Blueprint('api', __name__, url_prefix='/api')
 
@@ -18,7 +18,7 @@ def get_bookinfo(isbn) -> object:
     '''
     Return book info
     '''
-    book = Book.findone(isbn)
+    book = book.findone(isbn)
     if book is None:
         abort(404)
 
@@ -43,7 +43,7 @@ def register_user() -> object:
     if confirm != 'Yes':
         abort(400)
 
-    result = User.register(username, password)
+    result = user.register(username, password)
     if result is False:
         abort(409)
     else:
@@ -67,7 +67,7 @@ def delete_user() -> object:
     if confirm != 'Yes':
         abort(400)
 
-    if User.delete(username, password) is False:
+    if user.delete(username, password) is False:
         abort(400)
     else:
         return jsonify({'message': 'Delete Successfully'})
@@ -79,7 +79,7 @@ def getone_record(record_id) -> object:
     '''
     Return a record
     '''
-    record = Record.findone(record_id)
+    record = record.findone(record_id)
     if record is None:
         abort(404)
 
@@ -92,11 +92,11 @@ def getall_records(username) -> object:
     '''
     Show all records of a user
     '''
-    user = User.findone(username)
+    user = user.findone(username)
     if user is None:
         abort(404)
     user_id = user['id']
-    records = Record.findall(user_id)
+    records = record.findall(user_id)
     return jsonify(records)
 
 
@@ -123,17 +123,17 @@ def upsert_record() -> object:
     rating = data['rating'] if 'rating' in data else None
     comment = data['comment'] if 'comment' in data else None
 
-    if User.validate_user(username, password) is False:
+    if user.validate_user(username, password) is False:
         abort(401)
 
-    user = User.findone(username=username)
-    book = Book.findone(isbn=isbn)
+    user = user.findone(username=username)
+    book = book.findone(isbn=isbn)
     if user is None or book is None:
         abort(404)
 
     user_id = user['id']
     book_id = book['id']
-    record = Record.upsert(user_id=user_id, book_id=book_id,
+    record = record.upsert(user_id=user_id, book_id=book_id,
                            status=status, rating=rating, comment=comment)
     if record is None:
         abort(400)
@@ -169,11 +169,11 @@ def delete_record() -> object:
     except KeyError:
         abort(400)
 
-    if User.validate_user(username, password) is False:
+    if user.validate_user(username, password) is False:
         abort(401)
 
-    if Record.findone(record_id) is None:
+    if record.findone(record_id) is None:
         abort(404)
 
-    record = Record.delete(record_id)
+    record = record.delete(record_id)
     return jsonify(record)

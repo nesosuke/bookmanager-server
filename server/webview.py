@@ -2,7 +2,7 @@ from flask import Blueprint, Flask, render_template
 
 from server import book, record, user
 
-bp = Blueprint('web', __name__, url_prefix='/')
+bp = Blueprint('web', __name__, url_prefix='/web')
 
 
 class User:

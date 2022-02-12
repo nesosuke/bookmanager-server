@@ -50,3 +50,14 @@ class Record:
 @bp.route('/')
 def index():
     return render_template('index.html')
+
+
+@bp.route('/book/<isbn>')
+def book_detail(isbn):
+    book = Book(isbn).info
+    return render_template('bookdetail.html', book=book)
+
+
+@bp.route('/record/<record_id>') #TODO
+def record_detail(record_id):
+

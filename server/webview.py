@@ -36,8 +36,9 @@ class Record:
     def __init__(self, username, isbn):
         self.username = username
         self.isbn = isbn
-
-        self.id = record.find_id(User.id, Book.id)
+        self.user_id = user.findone(username)
+        self.book_id = book.findone(isbn)
+        self.id = record.find_id(self.user_id, self.book_id)
         self.info = record.findone(self.id)
 
         self.status = self.info['status']

@@ -32,36 +32,6 @@ def find_id(user_id, book_id) -> int:
     return record_id['id']
 
 
-def getid(username, isbn) -> int:
-    '''
-    get record_id by username and isbn
-    table: record
-    return: record_id or None
-    '''
-
-    db = get_db()
-
-    user = user.findone(username=username)
-    if user is None:
-        return None
-    else:
-        user_id = user['id']
-
-    book = book.findone(isbn=isbn)
-    if book is None:
-        return None
-    else:
-        book_id = book['id']
-
-    record_id = db.execute(
-        'SELECT id FROM record WHERE user_id = ? AND book_id = ?',
-        (user_id, book_id)).fetchone()
-
-    if record_id is None:
-        return None
-    return record_id['id']
-
-
 def findone(record_id: int) -> dict:
     '''
     get record from DB:record by record_id

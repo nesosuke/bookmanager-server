@@ -58,6 +58,6 @@ def book_detail(isbn):
     return render_template('bookdetail.html', book=book)
 
 
-@bp.route('/record/<record_id>') #TODO
-def record_detail(record_id):
+# @bp.route('/record/<record_id>') #TODO
+# def record_detail(record_id):
 

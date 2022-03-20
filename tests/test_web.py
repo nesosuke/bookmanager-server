@@ -82,7 +82,7 @@ def test_web_record_detail(client, record_id, message):
             b'Record create',
             b'submit'}
     }))
-def test_web_record_new(client):
+def test_web_record_new(client,message):
     response = client.get('/web/record/new')
     assert response.status_code == message[0]
     assert response.data == message[1]

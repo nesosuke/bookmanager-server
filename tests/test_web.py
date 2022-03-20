@@ -4,12 +4,16 @@ import pytest
 import json
 
 #   test /web access
+
+
 def test_web_top(client):
     response = client.get('/web/')
     assert response.status_code == 200
     assert b'<title>' in response.data
 
 # test /web/book/<isbn>
+
+
 @pytest.mark.parametrize(('isbn', 'message'), (
     # book found
     ('9784873119328',
@@ -22,20 +26,19 @@ def test_web_top(client):
                 b'オライリー・ジャパン',
             }
         }
-    ),
+     ),
     # book not found
     ('9784873119329',
         {200,
             {
                 b'Not found'
-                }
-        }
-    )))
+            }
+         }
+     )))
 def test_web_book_detail(client, isbn, message):
     response = client.get('/web/book/' + isbn)
     assert response.status_code == message[0]
     assert response.data == message[1]
-
 
 
 # test /web/record/<record_id>
@@ -44,7 +47,7 @@ def test_web_book_detail(client, isbn, message):
     ('1',
         {
             200,
-            {   
+            {
                 b'9784873119328',
                 b'Python 3',
                 b'Lubanovic, Bill',
@@ -56,21 +59,22 @@ def test_web_book_detail(client, isbn, message):
                 b'2022-01-01T00:00:00'
             }
         }
-    ),
+     ),
     ('2',
         {
             200,
-            {   
+            {
                 b'Not found'
-                }
+            }
         })))
-
 def test_web_record_detail(client, record_id, message):
     response = client.get('/web/record/' + record_id)
     assert response.status_code == message[0]
     assert response.data == message[1]
 
 # test /web/record/new
+
+
 @pytest.mark.parametrize(('message'), (
     {
         200,

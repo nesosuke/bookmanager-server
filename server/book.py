@@ -1,4 +1,4 @@
-from .Db import get_db
+from .db import get_db
 from bs4 import BeautifulSoup as bs
 import requests
 

@@ -1,6 +1,6 @@
-from server import User
-from . import Book
-from .Db import get_db
+from . import user
+from . import book
+from .db import get_db
 
 
 def validate_status(status) -> bool:
@@ -41,17 +41,17 @@ def getid(username, isbn) -> int:
 
     db = get_db()
 
-    user = User.findone(username=username)
-    if user is None:
+    userdata = user.findone(username=username)
+    if userdata is None:
         return None
     else:
-        user_id = user['id']
+        user_id = userdata['id']
 
-    book = Book.findone(isbn=isbn)
-    if book is None:
+    bookdata = book.findone(isbn=isbn)
+    if bookdata is None:
         return None
     else:
-        book_id = book['id']
+        book_id = bookdata['id']
 
     record_id = db.execute(
         'SELECT id FROM record WHERE user_id = ? AND book_id = ?',
@@ -71,27 +71,27 @@ def findone(record_id: int) -> dict:
 
     db = get_db()
 
-    record = db.execute(
+    recorddata = db.execute(
         'SELECT * FROM record WHERE id = ?', (record_id,)).fetchone()
-    if record is None:
+    if recorddata is None:
         return None
-    record = dict(record)
+    recorddata = dict(recorddata)
 
-    record['record_id'] = record['id']
+    recorddata['record_id'] = recorddata['id']
 
-    username = User.findone(id=record['user_id'])['username']
-    isbn = Book.findone(id=record['book_id'])['isbn']
+    username = user.findone(id=recorddata['user_id'])['username']
+    isbn = book.findone(id=recorddata['book_id'])['isbn']
 
-    bookinfo = Book.findone(isbn)
+    bookdata = book.findone(isbn)
 
-    record['isbn'] = isbn
-    record['username'] = username
-    record['title'] = bookinfo['title']
-    record['author'] = bookinfo['author']
-    record['publisher'] = bookinfo['publisher']
-    record['record_at'] = record['record_at'].isoformat()
+    recorddata['isbn'] = isbn
+    recorddata['username'] = username
+    recorddata['title'] = bookdata['title']
+    recorddata['author'] = bookdata['author']
+    recorddata['publisher'] = bookdata['publisher']
+    recorddata['record_at'] = recorddata['record_at'].isoformat()
 
-    return record
+    return recorddata
 
 
 def findall(user_id) -> list:
@@ -111,7 +111,7 @@ def findall(user_id) -> list:
         (user_id,)).fetchall()
     records_raw = list(records_raw)
 
-    username = User.findone(id=user_id)['username']
+    username = user.findone(id=user_id)['username']
 
     if records_raw is not None:
         records = [{} for i in range(len(records_raw))]
@@ -122,7 +122,7 @@ def findall(user_id) -> list:
             records[i]['comment'] = rec_raw['comment']
             records[i]['record_at'] = rec_raw['record_at'].isoformat()
 
-            bookinfo = Book.findone(id=rec_raw['book_id'])
+            bookinfo = book.findone(id=rec_raw['book_id'])
             records[i]['isbn'] = bookinfo['isbn']
             records[i]['title'] = bookinfo['title']
             records[i]['author'] = bookinfo['author']
@@ -158,8 +158,8 @@ def upsert(
                 = (?, ?, ?) WHERE id = ?',
             (status, rating, comment, record_id))
         db.commit()
-        record = findone(record_id)
-        return dict(record)
+        recorddata = findone(record_id)
+        return dict(recorddata)
 
     # If record not exist, insert record
     else:
@@ -169,8 +169,8 @@ def upsert(
             (user_id, book_id, status, rating, comment))
         db.commit()
         record_id = find_id(user_id, book_id)
-        record = findone(record_id)
-        return dict(record)
+        recorddata = findone(record_id)
+        return dict(recorddata)
 
 
 def delete(record_id) -> bool:

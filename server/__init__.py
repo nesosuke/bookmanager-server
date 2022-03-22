@@ -22,10 +22,13 @@ def create_app(test_config=None):
     except OSError:
         pass  # already exists
 
-    from . import Db
-    Db.init_app(app)
+    from . import db
+    db.init_app(app)
 
     from . import api
     app.register_blueprint(api.bp)
+
+    from . import webview
+    app.register_blueprint(webview.bp)
 
     return app

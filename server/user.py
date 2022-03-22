@@ -1,5 +1,5 @@
 from werkzeug.security import check_password_hash, generate_password_hash
-from .Db import get_db
+from .db import get_db
 
 
 def findone(username=None, id=None) -> dict:

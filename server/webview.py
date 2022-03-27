@@ -2,7 +2,7 @@ from flask import Blueprint, Flask, render_template
 
 from server import book, record, user
 
-bp = Blueprint('web', __name__, url_prefix='/web')
+url_web = Blueprint('web', __name__, url_prefix='/web',template_folder='templates')
 
 
 class User:
@@ -47,12 +47,12 @@ class Record:
         self.record_at = self.info['record_at']
 
 
-@bp.route('/')
+@url_web.route('/')
 def index():
     return render_template('index.html')
 
 
-@bp.route('/book/<isbn>')
+@url_web.route('/book/<isbn>')
 def book_detail(isbn):
     book = Book(isbn).info
     return render_template('bookdetail.html', book=book)

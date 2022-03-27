@@ -2,10 +2,10 @@ from flask import Blueprint, abort, jsonify, request
 
 from . import book, record, user
 
-bp = Blueprint('api', __name__, url_prefix='/api')
+url_api = Blueprint('api', __name__, url_prefix='/api')
 
 
-@bp.route('/')
+@url_api.route('/')
 def index() -> str:  # TODO: edit response message
     response = "Hello, World!"
     return response
@@ -13,7 +13,7 @@ def index() -> str:  # TODO: edit response message
 # Handle Book
 
 
-@bp.route('/book/<isbn>')
+@url_api.route('/book/<isbn>')
 def get_bookinfo(isbn) -> object:
     '''
     Return book info
@@ -28,7 +28,7 @@ def get_bookinfo(isbn) -> object:
 
 # Handle User
 
-@bp.route('/user/register', methods=['POST'])
+@url_api.route('/user/register', methods=['POST'])
 def register_user() -> object:
     '''
     Register a new user
@@ -50,7 +50,7 @@ def register_user() -> object:
         return jsonify({'message': 'Register Successfully'})
 
 
-@bp.route('/user/delete', methods=['POST'])
+@url_api.route('/user/delete', methods=['POST'])
 def delete_user() -> object:
     '''
     Delete exist user
@@ -74,7 +74,7 @@ def delete_user() -> object:
 # Handle Record
 
 
-@bp.route('record/<record_id>')
+@url_api.route('record/<record_id>')
 def getone_record(record_id) -> object:
     '''
     Return a record
@@ -87,7 +87,7 @@ def getone_record(record_id) -> object:
     return jsonify(recorddata)
 
 
-@bp.route('/user/<username>/records')
+@url_api.route('/user/<username>/records')
 def getall_records(username) -> object:
     '''
     Show all records of a user
@@ -100,7 +100,7 @@ def getall_records(username) -> object:
     return jsonify(records)
 
 
-@bp.route('/record/update', methods=['POST'])
+@url_api.route('/record/update', methods=['POST'])
 def upsert_record() -> object:
     '''
     Upsert a record
@@ -153,7 +153,7 @@ def upsert_record() -> object:
     return jsonify(result)
 
 
-@bp.route('/record/delete', methods=['POST'])
+@url_api.route('/record/delete', methods=['POST'])
 def delete_record() -> object:
     '''
     Delete a record

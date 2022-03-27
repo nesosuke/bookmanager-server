@@ -18,12 +18,12 @@ def get_bookinfo(isbn) -> object:
     '''
     Return book info
     '''
-    book = book.findone(isbn)
-    if book is None:
+    bookdata = book.findone(isbn)
+    if bookdata is None:
         abort(404)
 
-    del book['id']
-    return jsonify(book)
+    del bookdata['id']
+    return jsonify(bookdata)
 
 
 # Handle User
@@ -79,12 +79,12 @@ def getone_record(record_id) -> object:
     '''
     Return a record
     '''
-    record = record.findone(record_id)
-    if record is None:
+    recorddata = record.findone(record_id)
+    if recorddata is None:
         abort(404)
 
-    del record['id'], record['user_id'], record['book_id']
-    return jsonify(record)
+    del recorddata['id'], recorddata['user_id'], recorddata['book_id']
+    return jsonify(recorddata)
 
 
 @bp.route('/user/<username>/records')
@@ -92,10 +92,10 @@ def getall_records(username) -> object:
     '''
     Show all records of a user
     '''
-    user = user.findone(username)
-    if user is None:
+    userdata = user.findone(username)
+    if userdata is None:
         abort(404)
-    user_id = user['id']
+    user_id = userdata['id']
     records = record.findall(user_id)
     return jsonify(records)
 
@@ -126,29 +126,29 @@ def upsert_record() -> object:
     if user.validate_user(username, password) is False:
         abort(401)
 
-    user = user.findone(username=username)
-    book = book.findone(isbn=isbn)
-    if user is None or book is None:
+    userdata = user.findone(username=username)
+    bookdata = book.findone(isbn=isbn)
+    if userdata is None or bookdata is None:
         abort(404)
 
-    user_id = user['id']
-    book_id = book['id']
-    record = record.upsert(user_id=user_id, book_id=book_id,
+    user_id = userdata['id']
+    book_id = bookdata['id']
+    recorddata = record.upsert(user_id=user_id, book_id=book_id,
                            status=status, rating=rating, comment=comment)
-    if record is None:
+    if recorddata is None:
         abort(400)
 
     result = {}
-    result = {'record_id': record['id'],
+    result = {'record_id': recorddata['id'],
               'username': username,
               'isbn': isbn,
-              'title': book['title'],
-              'author': book['author'],
+              'title': bookdata['title'],
+              'author': bookdata['author'],
               'status': status,
-              'publisher': book['publisher'],
+              'publisher': bookdata['publisher'],
               'rating': rating,
               'comment': comment,
-              'record_at': record['record_at']}
+              'record_at': recorddata['record_at']}
 
     return jsonify(result)
 
@@ -175,5 +175,5 @@ def delete_record() -> object:
     if record.findone(record_id) is None:
         abort(404)
 
-    record = record.delete(record_id)
-    return jsonify(record)
+    recorddata = record.delete(record_id)
+    return jsonify(recorddata)

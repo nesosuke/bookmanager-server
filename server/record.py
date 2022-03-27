@@ -32,6 +32,36 @@ def find_id(user_id, book_id) -> int:
     return record_id['id']
 
 
+def getid(username, isbn) -> int:
+    '''
+    get record_id by username and isbn
+    table: record
+    return: record_id or None
+    '''
+
+    db = get_db()
+
+    userdata = user.findone(username=username)
+    if userdata is None:
+        return None
+    else:
+        user_id = userdata['id']
+
+    bookdata = book.findone(isbn=isbn)
+    if bookdata is None:
+        return None
+    else:
+        book_id = bookdata['id']
+
+    record_id = db.execute(
+        'SELECT id FROM record WHERE user_id = ? AND book_id = ?',
+        (user_id, book_id)).fetchone()
+
+    if record_id is None:
+        return None
+    return record_id['id']
+
+
 def findone(record_id: int) -> dict:
     '''
     get record from DB:record by record_id
@@ -41,27 +71,27 @@ def findone(record_id: int) -> dict:
 
     db = get_db()
 
-    record = db.execute(
+    recorddata = db.execute(
         'SELECT * FROM record WHERE id = ?', (record_id,)).fetchone()
-    if record is None:
+    if recorddata is None:
         return None
-    record = dict(record)
+    recorddata = dict(recorddata)
 
-    record['record_id'] = record['id']
+    recorddata['record_id'] = recorddata['id']
 
-    username = user.findone(id=record['user_id'])['username']
-    isbn = book.findone(id=record['book_id'])['isbn']
+    username = user.findone(id=recorddata['user_id'])['username']
+    isbn = book.findone(id=recorddata['book_id'])['isbn']
 
-    bookinfo = book.findone(isbn)
+    bookdata = book.findone(isbn)
 
-    record['isbn'] = isbn
-    record['username'] = username
-    record['title'] = bookinfo['title']
-    record['author'] = bookinfo['author']
-    record['publisher'] = bookinfo['publisher']
-    record['record_at'] = record['record_at'].isoformat()
+    recorddata['isbn'] = isbn
+    recorddata['username'] = username
+    recorddata['title'] = bookdata['title']
+    recorddata['author'] = bookdata['author']
+    recorddata['publisher'] = bookdata['publisher']
+    recorddata['record_at'] = recorddata['record_at'].isoformat()
 
-    return record
+    return recorddata
 
 
 def findall(user_id) -> list:
@@ -128,8 +158,8 @@ def upsert(
                 = (?, ?, ?) WHERE id = ?',
             (status, rating, comment, record_id))
         db.commit()
-        record = findone(record_id)
-        return dict(record)
+        recorddata = findone(record_id)
+        return dict(recorddata)
 
     # If record not exist, insert record
     else:
@@ -139,8 +169,8 @@ def upsert(
             (user_id, book_id, status, rating, comment))
         db.commit()
         record_id = find_id(user_id, book_id)
-        record = findone(record_id)
-        return dict(record)
+        recorddata = findone(record_id)
+        return dict(recorddata)
 
 
 def delete(record_id) -> bool:
